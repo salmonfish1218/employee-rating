@@ -1,15 +1,6 @@
-// import { ref, computed } from 'vue'
-// import { defineStore } from 'pinia'
+import { openDB, type IDBPDatabase, type IDBPObjectStore } from "idb";
+import { ref } from "vue";
 
-// export const useRatingStore = defineStore('rating', () => {
-//   const count = ref(0)
-//   const doubleCount = computed(() => count.value * 2)
-//   function rateEmployee(employee, rating: number) {
-//     count
-//   }
-
-//   return { count, doubleCount, increment }
-// })
 
 export interface Employee {
   id: string;
@@ -27,21 +18,54 @@ export interface Rating {
 }
 
 
-export let ratings: Rating[] = []
+export const ratings = ref<Rating[]>([])
 
-export function loadLocalStorageRatings() {
-  const storedRatings = localStorage.getItem('ratings')
-  ratings = JSON.parse(storedRatings || '[]')
+let db: IDBPDatabase;
+const storeName = 'main'
+
+async function get(key: string) {
+  const tx = db.transaction(storeName, 'readonly');
+  const store = tx.store as any
+  const result = await store.get(key);
+  await tx.done
+  return result;
 }
 
-export function rateEmployee(employeeRating: Rating) {
-  ratings.push(employeeRating)
-  console.log(ratings)
-  localStorage.setItem('ratings', JSON.stringify(ratings));
+async function put(key: string, value: any) {
+  const tx = db.transaction(storeName, 'readwrite');
+  const store = tx.store as any
+  console.log(JSON.parse(JSON.stringify(value)))
+  const result = await store.put(JSON.parse(JSON.stringify(value)), key);
+  await tx.done
+  return result;
 }
 
-function convertToCSV(arr) {
-  const array = [Object.keys(arr[0])].concat(arr)
+export async function initStorage() {
+  db = await openDB('app', 1, {
+    upgrade: async (database, oldVersion, newVersion, transaction, event) => {
+      db = database
+      if(!database.objectStoreNames.contains(storeName)) {
+        await db.createObjectStore(storeName)
+      }
+    },
+  });
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(null)
+    }, 1000)
+  })
+  const storedRatings = await get('ratings')
+  console.log(storedRatings)
+  ratings.value = storedRatings || []
+}
+
+export async function rateEmployee(employeeRating: Rating) {
+  ratings.value.push(employeeRating)
+  await put('ratings', ratings.value)
+}
+
+function jsonToCsv(json: any) {
+  const array = [Object.keys(json[0])].concat(json)
 
   return array.map(it => {
     return Object.values(it).toString()
@@ -49,7 +73,7 @@ function convertToCSV(arr) {
 }
 
 export function exportExcel() {
-  const data = "data:text/json;charset=utf-8," + encodeURIComponent(convertToCSV(ratings.map(value => ({
+  const data = "data:text/json;charset=utf-8," + encodeURIComponent(jsonToCsv(ratings.value.map(value => ({
     name: value.employee.name,
     rating: value.rate,
     phoneNumber: value.customer.phoneNumber

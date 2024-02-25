@@ -2,7 +2,7 @@
 import {ref} from 'vue'
 import { useRouter } from 'vue-router';
 import {exportExcel, ratings} from '../stores/rating'
-// import TheWelcome from '../components/TheWelcome.vue'
+
 const employees = ref([{
   id: '1',
   name: 'Employee 1'
