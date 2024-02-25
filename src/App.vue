@@ -7,6 +7,7 @@ import { initStorage } from './stores/rating';
 onMounted(() => {
   initStorage()
 })
+
 </script>
 
 <template>

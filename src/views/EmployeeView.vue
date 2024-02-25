@@ -23,7 +23,8 @@ function onClickConfirm() {
         rate: rating.value,
         customer: {
             phoneNumber: phoneNumber.value
-        }
+        },
+        timestamp: new Date().toISOString()
     })
     router.push({
         name: 'ty'

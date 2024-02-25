@@ -13,6 +13,7 @@ export interface Customer {
 
 export interface Rating {
   employee: Employee;
+  timestamp: string;
   rate: number;
   customer: Customer
 }
@@ -24,19 +25,22 @@ let db: IDBPDatabase;
 const storeName = 'main'
 
 async function get(key: string) {
+  console.time('get')
   const tx = db.transaction(storeName, 'readonly');
   const store = tx.store as any
   const result = await store.get(key);
   await tx.done
+  console.timeEnd('get')
   return result;
 }
 
 async function put(key: string, value: any) {
+  console.time('put')
   const tx = db.transaction(storeName, 'readwrite');
   const store = tx.store as any
-  console.log(JSON.parse(JSON.stringify(value)))
   const result = await store.put(JSON.parse(JSON.stringify(value)), key);
   await tx.done
+  console.timeEnd('put')
   return result;
 }
 
@@ -52,7 +56,7 @@ export async function initStorage() {
   await new Promise((resolve) => {
     setTimeout(() => {
       resolve(null)
-    }, 1000)
+    }, 500)
   })
   const storedRatings = await get('ratings')
   ratings.value = storedRatings || []
@@ -73,6 +77,7 @@ function jsonToCsv(json: any) {
 
 export function exportExcel() {
   const data = "data:text/json;charset=utf-8," + encodeURIComponent(jsonToCsv(ratings.value.map(value => ({
+    timestamp: new Date(value.timestamp).toLocaleString().replace(',', ''),
     name: value.employee.name,
     rating: value.rate,
     phoneNumber: value.customer.phoneNumber

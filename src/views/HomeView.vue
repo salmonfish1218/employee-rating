@@ -17,7 +17,6 @@ const employees = ref([{
   name: 'Employee 4'
 }])
 
-
 const router = useRouter()
 
 function onClickEmployee(employee) {
@@ -41,6 +40,9 @@ function onClickEmployee(employee) {
       stored ratings
     </div>
     <div v-for="(rating, i) in ratings" :key="i">
+      <div>
+        {{ rating.timestamp }}
+      </div>
       <div>
         {{ rating.employee.name }}
       </div>

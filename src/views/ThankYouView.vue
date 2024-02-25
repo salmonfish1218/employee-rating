@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
@@ -8,6 +9,12 @@ function onClickHome() {
     name: 'home',
   })
 }
+
+onMounted(() => {
+  setTimeout(() => {
+    router.push({name: 'home'})
+  }, 3000)
+})
 </script>
 
 <template>
