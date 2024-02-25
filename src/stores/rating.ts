@@ -55,7 +55,6 @@ export async function initStorage() {
     }, 1000)
   })
   const storedRatings = await get('ratings')
-  console.log(storedRatings)
   ratings.value = storedRatings || []
 }
 
