@@ -36,22 +36,5 @@ function onClickEmployee(employee) {
       </button>
     </div>
     <button @click="exportExcel">Export</button>
-    <div>
-      stored ratings
-    </div>
-    <div v-for="(rating, i) in ratings" :key="i">
-      <div>
-        {{ rating.timestamp }}
-      </div>
-      <div>
-        {{ rating.employee.name }}
-      </div>
-      <div>
-        {{ rating.rate }}
-      </div>
-      <div>
-        {{ rating.customer.phoneNumber }}
-      </div>
-    </div>
   </main>
 </template>
